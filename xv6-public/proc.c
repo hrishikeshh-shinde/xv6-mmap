@@ -537,10 +537,11 @@ procdump(void)
 
 uint wmap(uint addr, int length, int flags, int fd){
 
+  int endaddr = addr + length;
   //Error Handling:
   if(!(flags & MAP_SHARED) || !(flags & MAP_FIXED))
     return FAILED;
-  if(addr < MMAPBASE || addr+length > KERNBASE)
+  if(addr < MMAPBASE || endaddr > KERNBASE)
     return FAILED;
   if(addr % PGSIZE !=0) //Check once?
     return FAILED;
@@ -551,16 +552,21 @@ uint wmap(uint addr, int length, int flags, int fd){
   struct proc *currproc = myproc();
   int index = MAX_WMMAP_INFO;
   for(int i=0; i<MAX_WMMAP_INFO; i++){
-    if(currproc->info->startaddr[i]==-1){
+    if(currproc->info->startaddr[i]==-1 && index==MAX_WMMAP_INFO){
       index = i;
-      break;
+    } else if(currproc->info->startaddr[i]!=-1){
+      
+      if(addr>= currproc->info->startaddr[i] && addr <= currproc->info->endaddr[i])
+        return FAILED;
+      if(endaddr>= currproc->info->startaddr[i] && endaddr <= currproc->info->endaddr[i])
+        return FAILED;
     }
   }
   if(index < MAX_WMMAP_INFO){
     currproc->info->totalmaps++;
     currproc->info->length[index] = length;
     currproc->info->startaddr[index] = addr;
-    currproc->info->endaddr[index] = addr + length;
+    currproc->info->endaddr[index] = endaddr;
     currproc->info->flags[index] = flags;
     currproc->info->fd[index] = fd;
     currproc->info->valid[index] = 0;
