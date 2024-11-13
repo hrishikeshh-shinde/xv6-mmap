@@ -1,3 +1,4 @@
+#define MAX_WMMAP_INFO 16
 // Per-CPU state
 struct cpu {
   uchar apicid;                // Local APIC ID
@@ -34,6 +35,16 @@ struct context {
 
 enum procstate { UNUSED, EMBRYO, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
 
+struct procwmap {
+  int totalmaps;
+  int length[MAX_WMMAP_INFO];
+  int startaddr[MAX_WMMAP_INFO];
+  int endaddr[MAX_WMMAP_INFO];
+  int flags[MAX_WMMAP_INFO];
+  int fd[MAX_WMMAP_INFO];
+  int valid[MAX_WMMAP_INFO];
+};
+
 // Per-process state
 struct proc {
   uint sz;                     // Size of process memory (bytes)
@@ -49,7 +60,7 @@ struct proc {
   struct file *ofile[NOFILE];  // Open files
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
-  struct wmapinfo *info;       // Store wmap
+  struct procwmap *info;       // Store wmap
 };
 
 // Process memory is laid out contiguously, low addresses first:

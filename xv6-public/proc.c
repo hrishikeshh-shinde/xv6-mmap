@@ -89,6 +89,7 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
+  memset(p->info->startaddr, -1, sizeof *p->info->startaddr);
 
   release(&ptable.lock);
 
@@ -535,9 +536,39 @@ procdump(void)
 }
 
 uint wmap(uint addr, int length, int flags, int fd){
-  //Write Implementation
 
-  return 0;
+  //Error Handling:
+  if(!(flags & MAP_SHARED) || !(flags & MAP_FIXED))
+    return FAILED;
+  if(addr < MMAPBASE || addr+length > KERNBASE)
+    return FAILED;
+  if(addr % PGSIZE !=0) //Check once?
+    return FAILED;
+  if(length <=0 )
+    return FAILED;
+
+  //Storing info mmap:
+  struct proc *currproc = myproc();
+  int index = MAX_WMMAP_INFO;
+  for(int i=0; i<MAX_WMMAP_INFO; i++){
+    if(currproc->info->startaddr[i]==-1){
+      index = i;
+      break;
+    }
+  }
+  if(index < MAX_WMMAP_INFO){
+    currproc->info->totalmaps++;
+    currproc->info->length[index] = length;
+    currproc->info->startaddr[index] = addr;
+    currproc->info->endaddr[index] = addr + length;
+    currproc->info->flags[index] = flags;
+    currproc->info->fd[index] = fd;
+    currproc->info->valid[index] = 0;
+  } else {
+    return FAILED;
+  }
+  
+  return addr;
 }
 
 int wunmap(uint addr){
