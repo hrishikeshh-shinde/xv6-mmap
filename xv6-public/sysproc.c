@@ -89,3 +89,34 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+
+int
+sys_wmap(void)
+{
+  uint addr;
+  int length;
+  int flags;
+  int fd;
+
+  if(arguint(0, &addr) < 0) return -1;
+  if(argint(1, &length) < 0) return -1;
+  if(argint(2, &flags) < 0) return -1;
+  if(argint(3, &fd) < 0) return -1;
+
+  wmap(addr,length,flags,fd);
+
+  return 0;
+  
+}
+
+int
+sys_wunmap(void)
+{
+  uint addr;
+
+  if(arguint(0, &addr) < 0) return -1;
+
+  wunmap(addr);
+
+  return 0;
+}

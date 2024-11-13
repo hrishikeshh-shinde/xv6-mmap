@@ -23,6 +23,8 @@ int getpid(void);
 char* sbrk(int);
 int sleep(int);
 int uptime(void);
+uint wmap(uint, int, int, int);
+int wunmap(uint);
 
 // ulib.c
 int stat(const char*, struct stat*);

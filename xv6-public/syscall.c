@@ -52,6 +52,20 @@ argint(int n, int *ip)
   return fetchint((myproc()->tf->esp) + 4 + 4*n, ip);
 }
 
+// Fetch the nth 32-bit system call argument as unsigned int.
+int
+arguint(int n, uint *ip)
+{
+    int addr;
+    if (argint(n, &addr) < 0)   // Get the argument address from the stack
+        return -1;
+    
+    if (fetchint(addr, (int *)ip) < 0) // Retrieve the 4-byte value as unsigned
+        return -1;
+    
+    return 0;  // Success
+}
+
 // Fetch the nth word-sized system call argument as a pointer
 // to a block of memory of size bytes.  Check that the pointer
 // lies within the process address space.
@@ -103,6 +117,8 @@ extern int sys_unlink(void);
 extern int sys_wait(void);
 extern int sys_write(void);
 extern int sys_uptime(void);
+extern int sys_wmap(void);
+extern int sys_wunmap(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -126,6 +142,8 @@ static int (*syscalls[])(void) = {
 [SYS_link]    sys_link,
 [SYS_mkdir]   sys_mkdir,
 [SYS_close]   sys_close,
+[SYS_wmap]    sys_wmap,
+[SYS_wunmap]  sys_wunmap
 };
 
 void

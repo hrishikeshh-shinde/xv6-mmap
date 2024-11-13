@@ -4,6 +4,7 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "x86.h"
+#include "wmap.h"
 #include "proc.h"
 #include "spinlock.h"
 
@@ -531,4 +532,17 @@ procdump(void)
     }
     cprintf("\n");
   }
+}
+
+uint wmap(uint addr, int length, int flags, int fd){
+  //Write Implementation
+
+  return 0;
+}
+
+int wunmap(uint addr){
+  //Write Implementation
+
+  
+  return 0;
 }
