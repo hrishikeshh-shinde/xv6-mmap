@@ -77,8 +77,28 @@ trap(struct trapframe *tf)
             cpuid(), tf->cs, tf->eip);
     lapiceoi();
     break;
-  case T_PGFLT: 
-    
+  case T_PGFLT: //If page fault occurs
+    uint va = rcr2();
+    va = PGROUNDDOWN(va);
+    int flag = 0;
+    struct proc *currproc = myproc();
+    //Check if va within mapping:
+    for(int i=0; i<MAX_WMMAP_INFO; i++){
+      if(currproc->info->startaddr[i]!=-1){
+        if(va >= currproc->info->startaddr[i] && va <= currproc->info->endaddr[i]){
+          flag = 1;
+          break;
+        }
+      }
+    }
+    //If within mapping allocate memory else segfault
+    if(flag){
+      char *mem = kalloc();
+      mappages(currproc->pgdir, va, 4096, V2P(mem), PTE_W | PTE_U);
+    } else{
+      cprintf("Segmentation Fault\n");
+      myproc()->killed = 1;
+    }
 
   //PAGEBREAK: 13
   default:
