@@ -56,14 +56,15 @@ argint(int n, int *ip)
 int
 arguint(int n, uint *ip)
 {
-    int addr;
-    if (argint(n, &addr) < 0)   // Get the argument address from the stack
-        return -1;
+    // int addr;
+    // if (argint(n, &addr) < 0)   // Get the argument address from the stack
+    //     return -1;
     
-    if (fetchint(addr, (int *)ip) < 0) // Retrieve the 4-byte value as unsigned
-        return -1;
+    // if (fetchint(addr, (int *)ip) < 0) // Retrieve the 4-byte value as unsigned
+    //     return -1;
     
-    return 0;  // Success
+    // return 0;  // Success
+    return argint(n, (int*)ip);
 }
 
 // Fetch the nth word-sized system call argument as a pointer

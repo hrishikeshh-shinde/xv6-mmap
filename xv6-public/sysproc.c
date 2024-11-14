@@ -103,10 +103,7 @@ sys_wmap(void)
   if(argint(2, &flags) < 0) return -1;
   if(argint(3, &fd) < 0) return -1;
 
-  wmap(addr,length,flags,fd);
-
-  return 0;
-  
+  return wmap(addr,length,flags,fd);
 }
 
 int

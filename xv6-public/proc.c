@@ -89,7 +89,6 @@ allocproc(void)
 found:
   p->state = EMBRYO;
   p->pid = nextpid++;
-  memset(p->info->startaddr, -1, sizeof *p->info->startaddr);
 
   release(&ptable.lock);
 
@@ -113,6 +112,12 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
+
+  p->info = (struct procwmap *)kalloc();
+  p->info->totalmaps = 0;
+  for(int i=0; i<MAX_WMMAP_INFO;i++) {
+    p->info->startaddr[i] = -1;
+  }
 
   return p;
 }
@@ -535,6 +540,15 @@ procdump(void)
   }
 }
 
+void debug_info(struct proc *currproc, int index) {
+    cprintf("%d\n",currproc->info->totalmaps);
+    cprintf("%d\n",currproc->info->length[index]);
+    cprintf("%d\n",currproc->info->startaddr[index]);
+    cprintf("%d\n",currproc->info->endaddr[index]);
+    cprintf("%d\n",currproc->info->flags[index]);
+    cprintf("%d\n",currproc->info->fd[index]);
+}
+
 uint wmap(uint addr, int length, int flags, int fd){
 
   int endaddr = addr + length;
@@ -569,10 +583,11 @@ uint wmap(uint addr, int length, int flags, int fd){
     currproc->info->endaddr[index] = endaddr;
     currproc->info->flags[index] = flags;
     currproc->info->fd[index] = fd;
+
+
   } else {
     return FAILED;
   }
-  
   return addr;
 }
 
