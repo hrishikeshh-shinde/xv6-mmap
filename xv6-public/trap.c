@@ -106,8 +106,9 @@ trap(struct trapframe *tf)
         fileread(open_file, (char*)va, PGSIZE);
       }
     } else{
-      cprintf("Segmentation Fault\n");
+      //cprintf("Segmentation Fault\n"); //Change TC Fails
       myproc()->killed = 1;
+      exit(); //Change: TC 2 was failing
     }
 
   //PAGEBREAK: 13
