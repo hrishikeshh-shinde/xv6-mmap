@@ -9,6 +9,7 @@ struct spinlock;
 struct sleeplock;
 struct stat;
 struct superblock;
+struct wmapinfo;
 
 // bio.c
 void            binit(void);
@@ -123,6 +124,8 @@ void            wakeup(void*);
 void            yield(void);
 uint            wmap(uint, int, int, int);
 int             wunmap(uint);
+uint            va2pa(uint);
+int             getwmapinfo(struct wmapinfo*);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

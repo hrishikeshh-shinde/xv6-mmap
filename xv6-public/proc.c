@@ -593,7 +593,19 @@ uint wmap(uint addr, int length, int flags, int fd){
 
 int wunmap(uint addr){
   //Write Implementation
-
+  //pte entry invalid
+  //write file if not anonymous
+  //free physical memory: kree
   
+  return 0;
+}
+
+uint va2pa(uint va){
+  //Write Implementation
+  return 0;
+}
+
+int getwmapinfo(struct wmapinfo *wminfo){
+  //Write Implementation
   return 0;
 }
