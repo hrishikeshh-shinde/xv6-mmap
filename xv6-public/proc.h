@@ -42,7 +42,7 @@ struct procwmap {
   int endaddr[MAX_WMMAP_INFO];
   int flags[MAX_WMMAP_INFO];
   int fd[MAX_WMMAP_INFO];
-  int valid[MAX_WMMAP_INFO];
+  int n_loaded_pages[MAX_WMMAP_INFO];
 };
 
 // Per-process state
