@@ -8,7 +8,6 @@
 #include "traps.h"
 #include "spinlock.h"
 #include "wmap.h"
-
 // Interrupt descriptor table (shared by all CPUs).
 struct gatedesc idt[256];
 extern uint vectors[];  // in vectors.S: array of 256 entry pointers
@@ -98,8 +97,13 @@ trap(struct trapframe *tf)
       char *mem = kalloc();
       mappages(currproc->pgdir, (void *)va, PGSIZE, V2P(mem), PTE_W | PTE_U); //Check passed as void* ?
       currproc->info->n_loaded_pages[index]++;
+      //If file mapping, read file:
       if(!(currproc->info->flags[index] & MAP_ANONYMOUS)){
-        
+        int offset = va - currproc->info->startaddr[index];
+        int fd = currproc->info->fd[index];
+        struct file * open_file = currproc->ofile[fd];
+        setoffset(open_file, offset);
+        fileread(open_file, va, PGSIZE);
       }
     } else{
       cprintf("Segmentation Fault\n");

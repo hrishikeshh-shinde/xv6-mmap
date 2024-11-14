@@ -79,6 +79,12 @@ fileclose(struct file *f)
   }
 }
 
+
+int setoffset(struct file*f, int val) {
+  f->off = val;
+  return 0;
+}
+
 // Get metadata about file f.
 int
 filestat(struct file *f, struct stat *st)

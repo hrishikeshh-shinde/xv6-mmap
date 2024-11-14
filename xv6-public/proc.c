@@ -569,7 +569,6 @@ uint wmap(uint addr, int length, int flags, int fd){
     currproc->info->endaddr[index] = endaddr;
     currproc->info->flags[index] = flags;
     currproc->info->fd[index] = fd;
-    currproc->info->valid[index] = 0;
   } else {
     return FAILED;
   }
