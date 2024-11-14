@@ -103,7 +103,7 @@ trap(struct trapframe *tf)
         int fd = currproc->info->fd[index];
         struct file * open_file = currproc->ofile[fd];
         setoffset(open_file, offset);
-        fileread(open_file, va, PGSIZE);
+        fileread(open_file, (char*)va, PGSIZE);
       }
     } else{
       cprintf("Segmentation Fault\n");
