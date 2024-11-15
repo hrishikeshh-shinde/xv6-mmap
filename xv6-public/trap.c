@@ -104,10 +104,10 @@ trap(struct trapframe *tf)
         currproc->info->n_loaded_pages[index]++;
         //If file mapping, read file:
         if(!(currproc->info->flags[index] & MAP_ANONYMOUS)){
-          int offset = va - currproc->info->startaddr[index];
+          //int offset = va - currproc->info->startaddr[index];
           int fd = currproc->info->fd[index];
           struct file * open_file = currproc->ofile[fd];
-          setoffset(open_file, offset);
+          //setoffset(open_file, offset);
           fileread(open_file, (char*)va, PGSIZE);
         }
         break;
