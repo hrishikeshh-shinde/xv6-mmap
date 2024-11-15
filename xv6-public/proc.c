@@ -225,6 +225,17 @@ fork(void)
   np->state = RUNNABLE;
 
   release(&ptable.lock);
+  np->info->totalmaps = curproc->info->totalmaps;
+  for(int i=0; i<MAX_WMMAP_INFO; i++){
+    np->info->length[i] = curproc->info->length[i];
+    np->info->startaddr[i] = curproc->info->startaddr[i];
+    np->info->endaddr[i] = curproc->info->endaddr[i];
+    np->info->flags[i] = curproc->info->flags[i];
+    np->info->fd[i] = curproc->info->fd[i];
+    np->info->n_loaded_pages[i] = curproc->info->n_loaded_pages[i];
+  }
+  
+
 
   return pid;
 }
@@ -269,7 +280,12 @@ exit(void)
     }
   }
 
-  // Jump into the scheduler, never to return.
+  // for(int i=0; i<MAX_WMMAP_INFO; i++){
+  //   wunmap(curproc->info->startaddr[i]);
+  // }
+
+  //kfree(curproc->info);
+  //Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
   sched();
   panic("zombie exit");
@@ -587,6 +603,18 @@ uint wmap(uint addr, int length, int flags, int fd){
     currproc->info->endaddr[index] = endaddr;
     currproc->info->flags[index] = flags;
     currproc->info->fd[index] = fd;
+
+    if(fd!=-1){
+      struct file *f;
+      f = filedup(currproc->ofile[fd]);
+      for(int j = 0; j < NOFILE; j++) {
+        if(currproc->ofile[j] == 0) {
+            currproc->ofile[j] = f;
+            currproc->info->fd[index] = j;
+            break;
+        }
+      }
+    }
 
     //debug_info(currproc, index);
 

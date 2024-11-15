@@ -101,15 +101,15 @@ trap(struct trapframe *tf)
       else {
         memset(mem, 0, PGSIZE); //TC9 FAILED here.
         mappages(currproc->pgdir, (char *)va, PGSIZE, V2P(mem), PTE_W | PTE_U); //Check passed as void* ?
-        currproc->info->n_loaded_pages[index]++;
         //If file mapping, read file:
         if(!(currproc->info->flags[index] & MAP_ANONYMOUS)){
-          int offset = va - currproc->info->startaddr[index];
+          //int offset = va - currproc->info->startaddr[index];
           int fd = currproc->info->fd[index];
           struct file * open_file = currproc->ofile[fd];
-          setoffset(open_file, offset);
+          //setoffset(open_file, offset);
           fileread(open_file, (char*)va, PGSIZE);
         }
+        currproc->info->n_loaded_pages[index]++;
         break;
       }
     } else{
