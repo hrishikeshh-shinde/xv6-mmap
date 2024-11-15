@@ -6,6 +6,7 @@
 #include "memlayout.h"
 #include "mmu.h"
 #include "proc.h"
+#include "wmap.h"
 
 int
 sys_fork(void)
@@ -116,4 +117,24 @@ sys_wunmap(void)
   wunmap(addr);
 
   return 0;
+}
+
+int
+sys_va2pa(void)
+{
+  uint va;
+
+  if(arguint(0, &va) < 0) return -1;
+
+  return va2pa(va);
+}
+
+int
+sys_getwmapinfo(void)
+{
+  struct wmapinfo *wminfo;
+
+  if(argptr(0, (void*)&wminfo, sizeof(*wminfo)) < 0) return -1;
+
+  return getwmapinfo(wminfo);
 }

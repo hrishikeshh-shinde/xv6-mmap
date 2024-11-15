@@ -114,13 +114,12 @@ found:
   p->context->eip = (uint)forkret;
   // init p->info->startaddr
   p->info = (struct procwmap *)kalloc();
-  p->info->totalmaps = 0;
   for(int i=0; i<MAX_WMMAP_INFO;i++) {
     p->info->startaddr[i] = -1;
     p->info->n_loaded_pages[i] = 0;
     
   }
-
+  p->info->totalmaps = 0;
   return p;
 }
 
@@ -598,7 +597,38 @@ uint wmap(uint addr, int length, int flags, int fd){
 
 int wunmap(uint addr){
   //Write Implementation
-
+  //pte entry invalid
+  //write file if not anonymous
+  //free physical memory: kree
   
   return 0;
+}
+
+uint va2pa(uint va){
+  //Write Implementation
+  struct proc* p = myproc();
+  pde_t *pte;
+
+  pte = walkpgdir(p->pgdir, (const void *)va, 0);
+  
+  if(pte==0 || !(*pte & PTE_P)){
+    return FAILED;
+  }
+
+  uint pa = PTE_ADDR(*pte) | (va & 0xFFF);
+  return pa;
+}
+
+int getwmapinfo(struct wmapinfo *wminfo){
+  //Write Implementation
+  //What should happen if not all elements in array are filled
+  struct proc *currproc = myproc();
+  wminfo-> total_mmaps = currproc->info->totalmaps;
+  for(int i=0; i<MAX_WMMAP_INFO; i++){
+    wminfo->addr[i] = currproc->info->startaddr[i];
+    wminfo->length[i] = currproc->info->length[i];
+    wminfo->n_loaded_pages[i] = currproc->info->n_loaded_pages[i];
+  }
+  return SUCCESS;
+  //when return failure?
 }
