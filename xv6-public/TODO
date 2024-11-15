@@ -1,1 +1,4 @@
-TC 8 an TC 10 FAILED => how to find file struct if file is closed?
+TC 8 an TC 10 and TC 13 FAILED => how to find file struct if file is closed?
+TC 17-20 Fork
+TC 21 ELF
+TC 21-25 Copy on Write

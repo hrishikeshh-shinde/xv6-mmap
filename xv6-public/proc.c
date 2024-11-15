@@ -615,6 +615,8 @@ int wunmap(uint addr){
     int startaddr = currproc->info->startaddr[index];
     int endaddr = currproc->info->endaddr[index];
     int fd = currproc->info->fd[index];
+    struct file *f = currproc->ofile[fd];
+    setoffset(f, 0);
     for(addr = startaddr; addr<endaddr; addr+=PGSIZE){
       //Find pte
       pte = walkpgdir(currproc->pgdir, (const void *)addr, 0);
@@ -622,7 +624,7 @@ int wunmap(uint addr){
       if(!pte==0 && (*pte & PTE_P)){
         //write file if not anonymous
         if(fd!=-1){
-          
+          filewrite(f, (char*)addr, PGSIZE);
         }
         //free physical memory: kree
         uint physical_address = PTE_ADDR(*pte);
