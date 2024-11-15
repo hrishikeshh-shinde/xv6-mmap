@@ -72,16 +72,21 @@ int main() {
     //
     char *arr = (char *)smallmap;
     for (int i = 0; i < smallfilelen; i++) {
+        //  printf(1, "addr 0x%x contains %d, expected %d\n", smallmap + i, arr[i],
+                    //  smallval);
         if (arr[i] != smallval) {
-            printerr("addr 0x%x contains %d, expected %d\n", smallmap + i, arr[i],
+            printerr("i:%d addr 0x%x contains %d, expected %d\n", i, smallmap + i, arr[i],
                      smallval);
             failed();
         }
     }
+
+        printf(1, "INFO: Accessed first page. \tOkay.\n");
+
     arr = (char *)bigmap;
     for (int i = 0; i < PGSIZE; i++) {
         if (arr[PGSIZE + i] != bigval + 1) {
-            printerr("addr 0x%x contains %d, expected %d\n", bigmap + PGSIZE + i,
+            printerr("i:%d addr 0x%x contains %d, expected %d\n", i, bigmap + PGSIZE + i,
                      arr[PGSIZE + i], bigval + 1);
             failed();
         }
