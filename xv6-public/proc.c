@@ -112,11 +112,13 @@ found:
   p->context = (struct context*)sp;
   memset(p->context, 0, sizeof *p->context);
   p->context->eip = (uint)forkret;
-
+  // init p->info->startaddr
   p->info = (struct procwmap *)kalloc();
   p->info->totalmaps = 0;
   for(int i=0; i<MAX_WMMAP_INFO;i++) {
     p->info->startaddr[i] = -1;
+    p->info->n_loaded_pages[i] = 0;
+    
   }
 
   return p;
@@ -541,17 +543,18 @@ procdump(void)
 }
 
 void debug_info(struct proc *currproc, int index) {
-    cprintf("%d\n",currproc->info->totalmaps);
-    cprintf("%d\n",currproc->info->length[index]);
-    cprintf("%d\n",currproc->info->startaddr[index]);
-    cprintf("%d\n",currproc->info->endaddr[index]);
-    cprintf("%d\n",currproc->info->flags[index]);
-    cprintf("%d\n",currproc->info->fd[index]);
+    cprintf("index: %d\n", index);
+    cprintf("currproc->info->totalmaps: %d\n",currproc->info->totalmaps);
+    cprintf("currproc->info->length[index]: %d\n",currproc->info->length[index]);
+    cprintf("currproc->info->startaddr[index]: %x\n",currproc->info->startaddr[index]);
+    cprintf("currproc->info->endaddr[index]: %x\n",currproc->info->endaddr[index]);
+    cprintf("currproc->info->flags[index]: %d\n",currproc->info->flags[index]);
+    cprintf("currproc->info->fd[index]: %d\n",currproc->info->fd[index]);
 }
 
 uint wmap(uint addr, int length, int flags, int fd){
 
-  int endaddr = addr + length;
+  uint endaddr = addr + length;
   //Error Handling:
   if(!(flags & MAP_SHARED) || !(flags & MAP_FIXED))
     return FAILED;
@@ -561,6 +564,7 @@ uint wmap(uint addr, int length, int flags, int fd){
     return FAILED;
   if(length <=0 )
     return FAILED;
+  // cprintf("%x, %x\n", addr, endaddr);
 
   //Storing info mmap:
   struct proc *currproc = myproc();
@@ -584,6 +588,7 @@ uint wmap(uint addr, int length, int flags, int fd){
     currproc->info->flags[index] = flags;
     currproc->info->fd[index] = fd;
 
+    debug_info(currproc, index);
 
   } else {
     return FAILED;

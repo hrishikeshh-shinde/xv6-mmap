@@ -94,20 +94,26 @@ trap(struct trapframe *tf)
     }
     //If within mapping allocate memory else segfault
     if(index!=MAX_WMMAP_INFO){
-      char *mem = kalloc();
-      mappages(currproc->pgdir, (void *)va, PGSIZE, V2P(mem), PTE_W | PTE_U); //Check passed as void* ?
-      currproc->info->n_loaded_pages[index]++;
-      //If file mapping, read file:
-      if(!(currproc->info->flags[index] & MAP_ANONYMOUS)){
-        int offset = va - currproc->info->startaddr[index];
-        int fd = currproc->info->fd[index];
-        struct file * open_file = currproc->ofile[fd];
-        setoffset(open_file, offset);
-        fileread(open_file, (char*)va, PGSIZE);
+      char *mem;
+      if((mem = kalloc()) == 0) {
+        cprintf("Could not allocate memory");
+      }
+      else {
+        cprintf("kalloc : %x\n", mem);
+        mappages(currproc->pgdir, (void *)va, PGSIZE, V2P(mem), PTE_W | PTE_U); //Check passed as void* ?
+        currproc->info->n_loaded_pages[index]++;
+        //If file mapping, read file:
+        if(!(currproc->info->flags[index] & MAP_ANONYMOUS)){
+          int offset = va - currproc->info->startaddr[index];
+          int fd = currproc->info->fd[index];
+          struct file * open_file = currproc->ofile[fd];
+          setoffset(open_file, offset);
+          fileread(open_file, (char*)va, PGSIZE);
+        }
+        break;
       }
     } else{
       cprintf("Segmentation Fault\n");
-      myproc()->killed = 1;
     }
 
   //PAGEBREAK: 13
