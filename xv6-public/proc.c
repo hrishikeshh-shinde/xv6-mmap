@@ -549,6 +549,7 @@ void debug_info(struct proc *currproc, int index) {
     cprintf("currproc->info->endaddr[index]: %x\n",currproc->info->endaddr[index]);
     cprintf("currproc->info->flags[index]: %d\n",currproc->info->flags[index]);
     cprintf("currproc->info->fd[index]: %d\n",currproc->info->fd[index]);
+    cprintf("currproc->info->n_loaded_pages[index]: %d\n",currproc->info->n_loaded_pages[index]);
 }
 
 uint wmap(uint addr, int length, int flags, int fd){
@@ -573,9 +574,9 @@ uint wmap(uint addr, int length, int flags, int fd){
       index = i;
     } else if(currproc->info->startaddr[i]!=-1){
       
-      if(addr>= currproc->info->startaddr[i] && addr <= currproc->info->endaddr[i])
+      if(addr>= currproc->info->startaddr[i] && addr < currproc->info->endaddr[i])
         return FAILED;
-      if(endaddr>= currproc->info->startaddr[i] && endaddr <= currproc->info->endaddr[i])
+      if(endaddr>= currproc->info->startaddr[i] && endaddr < currproc->info->endaddr[i])
         return FAILED;
     }
   }
@@ -587,7 +588,7 @@ uint wmap(uint addr, int length, int flags, int fd){
     currproc->info->flags[index] = flags;
     currproc->info->fd[index] = fd;
 
-    debug_info(currproc, index);
+    //debug_info(currproc, index);
 
   } else {
     return FAILED;
