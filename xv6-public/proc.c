@@ -599,10 +599,43 @@ uint wmap(uint addr, int length, int flags, int fd){
 int wunmap(uint addr){
   //Write Implementation
   //pte entry invalid
-  //write file if not anonymous
-  //free physical memory: kree
-  
-  return 0;
+  struct proc* currproc = myproc();
+  pde_t *pte;
+  int index = MAX_WMMAP_INFO;
+  //Find startaddr for addr
+  for(int i=0; i<MAX_WMMAP_INFO; i++){
+      if(currproc->info->startaddr[i]!=-1){
+        if(addr == currproc->info->startaddr[i]){
+          index = i;
+          break;
+        }
+      }
+  }
+  if(index!=MAX_WMMAP_INFO){
+    int startaddr = currproc->info->startaddr[index];
+    int endaddr = currproc->info->endaddr[index];
+    int fd = currproc->info->fd[index];
+    for(addr = startaddr; addr<endaddr; addr+=PGSIZE){
+      //Find pte
+      pte = walkpgdir(currproc->pgdir, (const void *)addr, 0);
+
+      if(!pte==0 && (*pte & PTE_P)){
+        //write file if not anonymous
+        if(fd!=-1){
+          
+        }
+        //free physical memory: kree
+        uint physical_address = PTE_ADDR(*pte);
+        kfree(P2V(physical_address));
+        *pte = 0;
+      }
+    }    
+    currproc->info->startaddr[index]=-1;
+    currproc->info->totalmaps--;
+    return SUCCESS;
+  } else{
+    return FAILED;
+  }
 }
 
 uint va2pa(uint va){
