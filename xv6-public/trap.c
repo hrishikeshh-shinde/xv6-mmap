@@ -86,7 +86,7 @@ trap(struct trapframe *tf)
     //Check if va within mapping:
     for(int i=0; i<MAX_WMMAP_INFO; i++){
       if(currproc->info->startaddr[i]!=-1){
-        if(va >= currproc->info->startaddr[i] && va <= currproc->info->endaddr[i]){
+        if(va >= currproc->info->startaddr[i] && va < currproc->info->endaddr[i]){
           index = i;
           break;
         }
