@@ -3,4 +3,7 @@ TC 17-20 Fork
 TC 21 ELF
 TC 21-25 Copy on Write
 memory leak in exit
-Erro handling in trap.c
+Error handling in trap.c
+
+q. What happens if child creates a new mapping? What happens if parent creates a new mapping?
+q. Why does data in arr[1] change when exit() is called? Where exactly it might be causing an error?

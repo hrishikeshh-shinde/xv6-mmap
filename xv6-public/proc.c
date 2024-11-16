@@ -225,18 +225,24 @@ fork(void)
   np->state = RUNNABLE;
 
   release(&ptable.lock);
-  np->info->totalmaps = curproc->info->totalmaps;
+  //Set parent struct to child struct
+  np->info = curproc->info;
+  //Assign data in parent mapping to child mapping for valid pte
+  pde_t *curpte;
   for(int i=0; i<MAX_WMMAP_INFO; i++){
-    np->info->length[i] = curproc->info->length[i];
-    np->info->startaddr[i] = curproc->info->startaddr[i];
-    np->info->endaddr[i] = curproc->info->endaddr[i];
-    np->info->flags[i] = curproc->info->flags[i];
-    np->info->fd[i] = curproc->info->fd[i];
-    np->info->n_loaded_pages[i] = curproc->info->n_loaded_pages[i];
+      if(curproc->info->startaddr[i]!=-1){
+        int startaddr = curproc->info->startaddr[i];
+        int endaddr = curproc->info->endaddr[i];
+        for(int addr = startaddr; addr<endaddr; addr+=PGSIZE){
+          curpte = walkpgdir(curproc->pgdir, (const void *)addr, 0);
+          if(curpte && (*curpte & PTE_P)){
+            int pa = PTE_ADDR(*curpte);
+            int flags = PTE_FLAGS(*curpte);
+            mappages(np->pgdir, (void*)addr, PGSIZE, pa, flags);
+          }
+        }    
+      }
   }
-  
-
-
   return pid;
 }
 
@@ -643,13 +649,16 @@ int wunmap(uint addr){
     int startaddr = currproc->info->startaddr[index];
     int endaddr = currproc->info->endaddr[index];
     int fd = currproc->info->fd[index];
-    struct file *f = currproc->ofile[fd];
-    setoffset(f, 0);
+    struct file *f;
+    if(fd!=-1){
+      f = currproc->ofile[fd];
+      setoffset(f, 0);
+    }
     for(addr = startaddr; addr<endaddr; addr+=PGSIZE){
       //Find pte
       pte = walkpgdir(currproc->pgdir, (const void *)addr, 0);
 
-      if(!pte==0 && (*pte & PTE_P)){
+      if(pte && (*pte & PTE_P)){
         //write file if not anonymous
         if(fd!=-1){
           filewrite(f, (char*)addr, PGSIZE);
