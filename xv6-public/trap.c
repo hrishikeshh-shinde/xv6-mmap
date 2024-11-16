@@ -113,7 +113,7 @@ trap(struct trapframe *tf)
         break;
       }
     } else{
-      //cprintf("Segmentation Fault\n");
+      cprintf("Segmentation Fault\n");
       exit();
     }
 
