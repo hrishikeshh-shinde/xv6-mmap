@@ -18,7 +18,7 @@ static struct proc *initproc;
 int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
-extern unsigned char refcnt[MAX_PFN];
+extern unsigned char ref_cnt[MAX_PFN];
 
 static void wakeup1(void *chan);
 
@@ -246,12 +246,10 @@ fork(void)
           curpte = walkpgdir(curproc->pgdir, (const void *)addr, 0);
           if(curpte && (*curpte & PTE_P)){
             int pa = PTE_ADDR(*curpte);
-            int pidx = PGIDX(pa);
             int flags = PTE_FLAGS(*curpte);
-            // cprintf("hello pidx: %d, refcnt[pidx]: %d\n", pidx, refcnt[pidx]);
-            refcnt[pidx]++;
-            // cprintf("refcnt of page %d is %d", pidx, refcnt[pidx]);
             mappages(np->pgdir, (void*)addr, PGSIZE, pa, flags);
+            ref_cnt[pa>>12]++;
+
           }
         }    
       }
@@ -272,11 +270,11 @@ exit(void)
   if(curproc == initproc)
     panic("init exiting");
 
-  for(int i=0; i<MAX_WMMAP_INFO; i++){
-      if(curproc->info->startaddr[i]!=-1) {
-        wunmap(curproc->info->startaddr[i]);
-      }
-  }
+  // for(int i=0; i<MAX_WMMAP_INFO; i++){
+  //     if(curproc->info->startaddr[i]!=-1) {
+  //       wunmap(curproc->info->startaddr[i]);
+  //     }
+  // }
 
 
   // Close all open files.
@@ -306,7 +304,7 @@ exit(void)
     }
   }
 
-
+  // cprintf("exit successful\n");
   //kfree(curproc->info);
   //Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
@@ -322,7 +320,7 @@ wait(void)
   struct proc *p;
   int havekids, pid;
   struct proc *curproc = myproc();
-  
+  // cprintf("waiting...\n");
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
@@ -682,9 +680,6 @@ int wunmap(uint addr){
         }
         //free physical memory: kree
         uint physical_address = PTE_ADDR(*pte);
-        uint pidx = PGIDX(physical_address);
-
-        refcnt[pidx]--;
         kfree(P2V(physical_address));
         *pte = 0;
       }

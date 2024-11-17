@@ -83,7 +83,7 @@ int main() {
         printf(1, "8.arr[1]:%d\n", arr[1]);
         // validate contents of map 1
         for (int i = 1; i < length; i++) {
-            printf(1, "9.arr[1]:%d\n", arr[1]);
+            // printf(1, "9.arr[1]:%d\n", arr[1]);
             if (arr[i] != val) {
                 printerr("Parent: addr 0x%x contains %d, expected %d\n", map + i,
                          arr[i], val);
