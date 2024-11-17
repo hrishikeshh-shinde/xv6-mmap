@@ -615,6 +615,7 @@ uint wmap(uint addr, int length, int flags, int fd){
 
   //Storing info mmap:
   struct proc *currproc = myproc();
+  if(flags & MAP_ANONYMOUS) fd = -1;
   int index = MAX_WMMAP_INFO;
   for(int i=0; i<MAX_WMMAP_INFO; i++){
     if(currproc->info->startaddr[i]==-1 && index==MAX_WMMAP_INFO){
@@ -635,7 +636,7 @@ uint wmap(uint addr, int length, int flags, int fd){
     currproc->info->flags[index] = flags;
     currproc->info->fd[index] = fd;
 
-    if(!(flags & MAP_ANONYMOUS) && fd!=-1){
+    if(fd!=-1){
       struct file *f;
       f = filedup(currproc->ofile[fd]);
       for(int j = 0; j < NOFILE; j++) {
@@ -674,9 +675,8 @@ int wunmap(uint addr){
     int startaddr = currproc->info->startaddr[index];
     int endaddr = currproc->info->endaddr[index];
     int fd = currproc->info->fd[index];
-    int flags = currproc->info->flags[index];
     struct file *f;
-    if(!(flags & MAP_ANONYMOUS) && fd!=-1){
+    if(fd!=-1){
       f = currproc->ofile[fd];
       setoffset(f, 0); // offset would have changed when we were reading so resetting it to 0
     }
@@ -686,7 +686,7 @@ int wunmap(uint addr){
 
       if(pte && (*pte & PTE_P)){
         //write file if not anonymous
-        if(!(flags & MAP_ANONYMOUS) && fd!=-1){
+        if(fd!=-1){
           filewrite(f, (char*)addr, PGSIZE);
         }
         //free physical memory: kree
