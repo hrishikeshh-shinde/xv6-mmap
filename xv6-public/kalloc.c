@@ -9,6 +9,8 @@
 #include "mmu.h"
 #include "spinlock.h"
 
+uchar refcnt[MAX_PFN] = {0};
+
 void freerange(void *vstart, void *vend);
 extern char end[]; // first address after kernel loaded from ELF file
                    // defined by the kernel linker script in kernel.ld
@@ -60,7 +62,9 @@ void
 kfree(char *v)
 {
   struct run *r;
-
+  uint pa = V2P(v);
+  uint pidx = PGIDX(pa);
+  if(refcnt[pidx]>1)  return;
   if((uint)v % PGSIZE || v < end || V2P(v) >= PHYSTOP)
     panic("kfree");
 
@@ -83,7 +87,6 @@ char*
 kalloc(void)
 {
   struct run *r;
-
   if(kmem.use_lock)
     acquire(&kmem.lock);
   r = kmem.freelist;
@@ -91,6 +94,11 @@ kalloc(void)
     kmem.freelist = r->next;
   if(kmem.use_lock)
     release(&kmem.lock);
-  return (char*)r;
+  char* va = (char*)r;
+  uint pa = V2P(va);
+  int pidx = PGIDX(pa);
+  // cprintf("pidx: %d, pa: %d\n", pidx, pa);
+  refcnt[pidx] = 1;
+  return va;
 }
 

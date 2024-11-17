@@ -7,3 +7,12 @@ Error handling in trap.c
 
 q. What happens if child creates a new mapping? What happens if parent creates a new mapping?
 q. Why does data in arr[1] change when exit() is called? Where exactly it might be causing an error?
+
+
+
+
+---
+mappages - add entry in page table of va to pa
+
+
+fork mein fat raha 17 because ab hum exit mein wunmap call kr rhe which will free pages

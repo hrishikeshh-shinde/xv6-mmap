@@ -18,6 +18,7 @@ static struct proc *initproc;
 int nextpid = 1;
 extern void forkret(void);
 extern void trapret(void);
+extern unsigned char refcnt[MAX_PFN];
 
 static void wakeup1(void *chan);
 
@@ -226,10 +227,18 @@ fork(void)
 
   release(&ptable.lock);
   //Set parent struct to child struct
-  np->info = curproc->info;
+  np->info = (struct procwmap *)kalloc();
+  np->info->totalmaps = curproc->info->totalmaps;
+
   //Assign data in parent mapping to child mapping for valid pte
   pde_t *curpte;
   for(int i=0; i<MAX_WMMAP_INFO; i++){
+    np->info->length[i] = curproc->info->length[i];
+    np->info->startaddr[i] = curproc->info->startaddr[i];
+    np->info->endaddr[i] = curproc->info->endaddr[i];
+    np->info->flags[i] = curproc->info->flags[i];
+    np->info->fd[i] = curproc->info->fd[i];
+    np->info->n_loaded_pages[i] = curproc->info->n_loaded_pages[i];
       if(curproc->info->startaddr[i]!=-1){
         int startaddr = curproc->info->startaddr[i];
         int endaddr = curproc->info->endaddr[i];
@@ -237,7 +246,11 @@ fork(void)
           curpte = walkpgdir(curproc->pgdir, (const void *)addr, 0);
           if(curpte && (*curpte & PTE_P)){
             int pa = PTE_ADDR(*curpte);
+            int pidx = PGIDX(pa);
             int flags = PTE_FLAGS(*curpte);
+            // cprintf("hello pidx: %d, refcnt[pidx]: %d\n", pidx, refcnt[pidx]);
+            refcnt[pidx]++;
+            // cprintf("refcnt of page %d is %d", pidx, refcnt[pidx]);
             mappages(np->pgdir, (void*)addr, PGSIZE, pa, flags);
           }
         }    
@@ -258,6 +271,13 @@ exit(void)
 
   if(curproc == initproc)
     panic("init exiting");
+
+  for(int i=0; i<MAX_WMMAP_INFO; i++){
+      if(curproc->info->startaddr[i]!=-1) {
+        wunmap(curproc->info->startaddr[i]);
+      }
+  }
+
 
   // Close all open files.
   for(fd = 0; fd < NOFILE; fd++){
@@ -286,9 +306,6 @@ exit(void)
     }
   }
 
-  // for(int i=0; i<MAX_WMMAP_INFO; i++){
-  //   wunmap(curproc->info->startaddr[i]);
-  // }
 
   //kfree(curproc->info);
   //Jump into the scheduler, never to return.
@@ -652,7 +669,7 @@ int wunmap(uint addr){
     struct file *f;
     if(fd!=-1){
       f = currproc->ofile[fd];
-      setoffset(f, 0);
+      setoffset(f, 0); // offset would have changed when we were reading so resetting it to 0
     }
     for(addr = startaddr; addr<endaddr; addr+=PGSIZE){
       //Find pte
@@ -665,6 +682,9 @@ int wunmap(uint addr){
         }
         //free physical memory: kree
         uint physical_address = PTE_ADDR(*pte);
+        uint pidx = PGIDX(physical_address);
+
+        refcnt[pidx]--;
         kfree(P2V(physical_address));
         *pte = 0;
       }
