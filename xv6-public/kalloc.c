@@ -63,8 +63,8 @@ kfree(char *v)
 {
   struct run *r;
   uint pa = V2P(v);
-  // uint pidx = PGIDX(pa);
-  if(ref_cnt[pa>>12]>1) {ref_cnt[pa>>12]--; return;}
+  uint pidx = PFN(pa);
+  if(ref_cnt[pidx] > 1) {ref_cnt[pidx]--; return;}
 
   if((uint)v % PGSIZE || v < end || V2P(v) >= PHYSTOP)
     panic("kfree");
@@ -99,7 +99,8 @@ kalloc(void)
   uint pa = V2P(va);
   // int pidx = PGIDX(pa);
   // cprintf("pidx: %d, pa: %d\n", pidx, pa);
-  ref_cnt[pa>>12] = 1;
+  uint pfn = PFN(pa);
+  ref_cnt[pfn] = 1;
   return va;
 }
 

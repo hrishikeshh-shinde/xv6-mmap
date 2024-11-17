@@ -89,7 +89,7 @@ struct segdesc {
 
 #define PGROUNDUP(sz)  (((sz)+PGSIZE-1) & ~(PGSIZE-1))
 #define PGROUNDDOWN(a) (((a)) & ~(PGSIZE-1))
-#define PGIDX(a)      a>>12;
+#define PFN(a)      (uint)a>>12;
 
 // Page table/directory entry flags.
 #define PTE_P           0x001   // Present

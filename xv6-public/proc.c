@@ -248,8 +248,8 @@ fork(void)
             int pa = PTE_ADDR(*curpte);
             int flags = PTE_FLAGS(*curpte);
             mappages(np->pgdir, (void*)addr, PGSIZE, pa, flags);
-            ref_cnt[pa>>12]++;
-
+            uint pfn = PFN(pa);
+            ref_cnt[pfn]++;
           }
         }    
       }
