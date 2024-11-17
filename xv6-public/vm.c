@@ -11,6 +11,7 @@ extern char data[];  // defined by kernel.ld
 extern int mappages();
 extern pte_t * walkpgdir();
 pde_t *kpgdir;  // for use in scheduler()
+extern unsigned char ref_cnt[MAX_PFN];
 
 // Set up CPU's kernel segment descriptors.
 // Run once on entry on each CPU.
@@ -325,7 +326,7 @@ copyuvm(pde_t *pgdir, uint sz)
   pde_t *d;
   pte_t *pte;
   uint pa, i, flags;
-  char *mem;
+  // char *mem;
 
   if((d = setupkvm()) == 0)
     return 0;
@@ -336,11 +337,13 @@ copyuvm(pde_t *pgdir, uint sz)
       panic("copyuvm: page not present");
     pa = PTE_ADDR(*pte);
     flags = PTE_FLAGS(*pte);
-    if((mem = kalloc()) == 0)
-      goto bad;
-    memmove(mem, (char*)P2V(pa), PGSIZE);
-    if(mappages(d, (void*)i, PGSIZE, V2P(mem), flags) < 0) {
-      kfree(mem);
+    uint pfn = PFN(pa);
+    ref_cnt[pfn]++;
+    // if((mem = kalloc()) == 0)
+    //   goto bad;
+    // memmove(mem, (char*)P2V(pa), PGSIZE);
+    if(mappages(d, (void*)i, PGSIZE, pa, flags) < 0) {
+      // kfree(mem);
       goto bad;
     }
   }
