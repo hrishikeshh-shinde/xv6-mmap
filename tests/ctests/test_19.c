@@ -57,30 +57,30 @@ int main() {
             }
         }
         printf(1, "INFO: Child process sees Map 1. \tOkay\n");
-        printf(1, "1.arr[1]:%d\n", arr[1]);
+        //printf(1, "1.arr[1]:%d\n", arr[1]);
 
         // verify parent's modification
         if (arr[0] != newval_parent) {
             printerr("Child could not see the parent's modification\n");
             failed();
         }
-        printf(1, "2.arr[1]:%d\n", arr[1]);
+        //printf(1, "2.arr[1]:%d\n", arr[1]);
         printf(1, "INFO: Child sees the parent's modification. \tOkay\n");
-        printf(1, "3.arr[1]:%d\n", arr[1]);
+        //printf(1, "3.arr[1]:%d\n", arr[1]);
         // modify the data
         arr[0] = newval_child;
-        printf(1, "4.arr[1]:%d\n", arr[1]);
+        //printf(1, "4.arr[1]:%d\n", arr[1]);
         // child process exits
         exit();
     } else {
         arr[0] = newval_parent;
-        printf(1, "5.arr[1]:%d\n", arr[1]);
+        //printf(1, "5.arr[1]:%d\n", arr[1]);
         wait();
-        printf(1, "6.arr[1]:%d\n", arr[1]);
+        //printf(1, "6.arr[1]:%d\n", arr[1]);
         get_n_validate_wmap_info(&winfo, 1);
-        printf(1, "7.arr[1]:%d\n", arr[1]);
+        //printf(1, "7.arr[1]:%d\n", arr[1]);
         map_exists(&winfo, map, length, TRUE);
-        printf(1, "8.arr[1]:%d\n", arr[1]);
+        //printf(1, "8.arr[1]:%d\n", arr[1]);
         // validate contents of map 1
         for (int i = 1; i < length; i++) {
             // printf(1, "9.arr[1]:%d\n", arr[1]);

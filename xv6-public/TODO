@@ -1,4 +1,4 @@
-TC 8 an TC 10 FAILED => how to find file struct if file is closed? => filedup
+TC 10 FAILED?
 TC 17-20 Fork
 TC 21 ELF
 TC 21-25 Copy on Write
@@ -16,3 +16,5 @@ mappages - add entry in page table of va to pa
 
 
 fork mein fat raha 17 because ab hum exit mein wunmap call kr rhe which will free pages
+q. What happens if child creates a new mapping? What happens if parent creates a new mapping? =>THEY ARE SEPERATE
+q. Why does data in arr[1] change when exit() is called? Where exactly it might be causing an error? TC 19 STILL FAILS

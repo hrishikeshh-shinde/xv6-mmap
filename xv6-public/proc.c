@@ -304,7 +304,17 @@ exit(void)
     }
   }
 
-  // cprintf("exit successful\n");
+  // for(int i=0; i<MAX_WMMAP_INFO; i++){
+  //   if(curproc->info->startaddr[i]!=-1){
+  //     wunmap(curproc->info->startaddr[i]);
+  //   }
+  // }
+
+  // if(p->info) {
+  //       kfree((char *)p->info);
+  //       p->info = 0;
+  // }
+
   //kfree(curproc->info);
   //Jump into the scheduler, never to return.
   curproc->state = ZOMBIE;
