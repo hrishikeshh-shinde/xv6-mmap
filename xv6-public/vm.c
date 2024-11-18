@@ -336,9 +336,14 @@ copyuvm(pde_t *pgdir, uint sz)
     if(!(*pte & PTE_P))
       panic("copyuvm: page not present");
     pa = PTE_ADDR(*pte);
+    if(*pte & PTE_W) {
+      *pte &= ~PTE_W;
+      *pte |= PTE_COW;
+    } 
     flags = PTE_FLAGS(*pte);
     uint pfn = PFN(pa);
     ref_cnt[pfn]++;
+  
     // if((mem = kalloc()) == 0)
     //   goto bad;
     // memmove(mem, (char*)P2V(pa), PGSIZE);
