@@ -231,7 +231,7 @@ fork(void)
   np->info->totalmaps = curproc->info->totalmaps;
 
   //Assign data in parent mapping to child mapping for valid pte
-  // pde_t *curpte;
+  pde_t *curpte;
   for(int i=0; i<MAX_WMMAP_INFO; i++){
     np->info->length[i] = curproc->info->length[i];
     np->info->startaddr[i] = curproc->info->startaddr[i];
@@ -239,20 +239,20 @@ fork(void)
     np->info->flags[i] = curproc->info->flags[i];
     np->info->fd[i] = curproc->info->fd[i];
     np->info->n_loaded_pages[i] = curproc->info->n_loaded_pages[i];
-      // if(curproc->info->startaddr[i]!=-1){
-      //   int startaddr = curproc->info->startaddr[i];
-      //   int endaddr = curproc->info->endaddr[i];
-      //   for(int addr = startaddr; addr<endaddr; addr+=PGSIZE){
-      //     curpte = walkpgdir(curproc->pgdir, (const void *)addr, 0);
-      //     if(curpte && (*curpte & PTE_P)){
-      //       int pa = PTE_ADDR(*curpte);
-      //       int flags = PTE_FLAGS(*curpte);
-      //       mappages(np->pgdir, (void*)addr, PGSIZE, pa, flags);
-      //       uint pfn = PFN(pa);
-      //       ref_cnt[pfn]++;
-      //     }
-      //   }    
-      // }
+      if(curproc->info->startaddr[i]!=-1){
+        int startaddr = curproc->info->startaddr[i];
+        int endaddr = curproc->info->endaddr[i];
+        for(int addr = startaddr; addr<endaddr; addr+=PGSIZE){
+          curpte = walkpgdir(curproc->pgdir, (const void *)addr, 0);
+          if(curpte && (*curpte & PTE_P)){
+            int pa = PTE_ADDR(*curpte);
+            int flags = PTE_FLAGS(*curpte);
+            mappages(np->pgdir, (void*)addr, PGSIZE, pa, flags);
+            uint pfn = PFN(pa);
+            ref_cnt[pfn]++;
+          }
+        }    
+      }
   }
   return pid;
 }

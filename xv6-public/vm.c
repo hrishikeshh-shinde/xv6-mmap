@@ -336,10 +336,15 @@ copyuvm(pde_t *pgdir, uint sz)
     if(!(*pte & PTE_P))
       panic("copyuvm: page not present");
     pa = PTE_ADDR(*pte);
+    // cprintf("before pte write %d\n", *pte & PTE_W);
+    // cprintf("before pte COW %d\n", *pte & PTE_COW);
+
     if(*pte & PTE_W) {
       *pte &= ~PTE_W;
       *pte |= PTE_COW;
     } 
+    // cprintf("after pte write %d\n", *pte & PTE_W);
+    // cprintf("after pte COW %d\n", *pte & PTE_COW);
     flags = PTE_FLAGS(*pte);
     uint pfn = PFN(pa);
     ref_cnt[pfn]++;
@@ -351,6 +356,7 @@ copyuvm(pde_t *pgdir, uint sz)
       // kfree(mem);
       goto bad;
     }
+     lcr3(V2P(pgdir));
   }
   return d;
 
