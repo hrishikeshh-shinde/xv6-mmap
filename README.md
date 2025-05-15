@@ -1,4 +1,4 @@
-# xv6 Memory Mapping
+# Operating System Enhancements on xv6
 
 In this project, you're going to learn more about the memory management subsystem in xv6. In this process, you will improve some existing mechanisms in xv6 to provide a more secure and performant system. Additionally, you will implement a new functionality which allows the user to map files into memory.
 
